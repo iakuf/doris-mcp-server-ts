@@ -1,6 +1,6 @@
 {
   "name": "doris-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Apache Doris MCP Server - TypeScript implementation using MySQL protocol",
   "keywords": ["doris", "mcp", "model-context-protocol", "database", "analytics", "sql"],
   "author": "iakuf",
