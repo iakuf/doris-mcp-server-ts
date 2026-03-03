@@ -37,18 +37,39 @@ async function getConnection() {
   });
 }
 
-async function query(sql: string, params?: (string | number | null)[]) {
+// SHOW / DESCRIBE / EXPLAIN 等命令 Doris Nereids 优化器不支持，需要提前关闭
+const NEREIDS_UNSUPPORTED = /^\s*(SHOW|DESCRIBE|DESC|EXPLAIN|ALTER|DROP|CREATE|ADMIN|RECOVER|TRUNCATE)\b/i;
+
+async function query(sql: string, params?: (string | number | null)[], database?: string) {
   const conn = await getConnection();
   try {
-    const [rows] = params ? await conn.execute(sql, params) : await conn.execute(sql);
+    if (database) {
+      await conn.query(`USE \`${database}\``);
+    }
+    // 对已知不兼容 Nereids 的命令，提前关闭优化器
+    if (NEREIDS_UNSUPPORTED.test(sql)) {
+      await conn.query("SET enable_nereids_planner=false");
+    }
+    // 有参数时用 execute (prepared statement)，无参数时用 query (text protocol)
+    // Doris Nereids 在 prepared statement 阶段就会拒绝不支持的命令
+    const [rows] = params ? await conn.execute(sql, params) : await conn.query(sql);
     return rows;
+  } catch (err: any) {
+    // 兜底：如果仍然遇到 Nereids 错误，关闭优化器后用 text protocol 重试
+    const errInfo = JSON.stringify({ message: err?.message, sqlMessage: err?.sqlMessage, code: err?.code });
+    if (errInfo.includes('MustFallbackException') || errInfo.includes('fallback')) {
+      await conn.query("SET enable_nereids_planner=false");
+      const [rows] = params ? await conn.execute(sql, params) : await conn.query(sql);
+      return rows;
+    }
+    throw err;
   } finally {
     await conn.end();
   }
 }
 
 const server = new Server(
-  { name: "doris-mcp-server", version: "1.0.2" },
+  { name: "doris-mcp-server", version: "1.0.3" },
   { capabilities: { tools: {} } }
 );
 
@@ -176,8 +197,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     switch (name) {
       case "exec_query": {
         const { sql, database } = z.object({ sql: z.string(), database: z.string().optional() }).parse(args);
-        if (database) await query(`USE \`${database}\``);
-        rows = await query(sql);
+        rows = await query(sql, undefined, database);
         break;
       }
       case "get_db_list":
@@ -235,8 +255,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       }
       case "explain_query": {
         const { sql, database } = z.object({ sql: z.string(), database: z.string().optional() }).parse(args);
-        if (database) await query(`USE \`${database}\``);
-        rows = await query(`EXPLAIN ${sql}`);
+        rows = await query(`EXPLAIN ${sql}`, undefined, database);
         break;
       }
       case "get_running_queries":
