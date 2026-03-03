@@ -1,0 +1,44 @@
+{
+  "name": "doris-mcp-server",
+  "version": "1.0.0",
+  "description": "Apache Doris MCP Server - TypeScript implementation using MySQL protocol",
+  "keywords": ["doris", "mcp", "model-context-protocol", "database", "analytics", "sql"],
+  "author": "",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "doris-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "mysql2": "^3.14.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

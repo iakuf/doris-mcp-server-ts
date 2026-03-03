@@ -1,0 +1,6 @@
+src/
+node_modules/
+*.log
+.env
+tsconfig.json
+pnpm-lock.yaml
