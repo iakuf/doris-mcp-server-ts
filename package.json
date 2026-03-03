@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "Apache Doris MCP Server - TypeScript implementation using MySQL protocol",
   "keywords": ["doris", "mcp", "model-context-protocol", "database", "analytics", "sql"],
-  "author": "",
+  "author": "iakuf",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts#readme",
+  "homepage": "https://github.com/iakuf/doris-mcp-server-ts#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts.git"
+    "url": "https://github.com/iakuf/doris-mcp-server-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_GITHUB/doris-mcp-server-ts/issues"
+    "url": "https://github.com/iakuf/doris-mcp-server-ts/issues"
   },
   "type": "module",
   "main": "dist/index.js",
